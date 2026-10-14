@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Impresión</title>
+    <style>
+        /* =========================================================
+           ESTILOS BASE (Estructura)
+           ========================================================= */
+        :root {
+            --primary: #2c3e50;
+            --ok: #27ae60;
+            --bg: #ecf0f1;
+            --text: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 { 
+            text-align: center; 
+            color: var(--primary); 
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        /* Barra de progreso */
+        .bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .bar i {
+            display: block;
+            height: 100%;
+            width: 66%; /* Progreso simulado */
+            background: var(--ok);
+        }
+
+        /* Pestañas / Segmentos */
+        .seg { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            justify-content: center; 
+        }
+        button, .tab, .go {
+            padding: 10px 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Pasos a seguir */
+        .step {
+            display: flex;
+            align-items: center;
+            background: #f9f9f9;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ccc;
+            cursor: pointer;
+            user-select: none;
+        }
+        .step.done {
+            border-left-color: var(--ok);
+        }
+        .chk {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            margin-right: 15px;
+            display: flex;
+            flex-shrink: 0;
+        }
+        .step.done .chk {
+            background-color: var(--ok);
+            border-color: var(--ok);
+        }
+        .step p { margin: 0; font-size: 0.9rem; color: #666; }
+        .step strong { display: block; margin-bottom: 4px; }
+
+        /* SVG Animado del Rollo */
+        .rollbox {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .rollbox svg {
+            width: 120px;
+            height: 120px;
+        }
+        .rollbox p { margin-top: 10px; font-size: 0.85rem; color: #888; font-weight: bold; }
+
+        /* Galería de imágenes (Thumbs) */
+        .gallery { 
+            display: flex; 
+            gap: 15px; 
+            justify-content: center; 
+            margin-top: 25px; 
+        }
+        .thumb {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 80px;
+            height: 80px;
+            background: #ddd;
+        }
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .thumb::after {
+            content: 'Ampliar';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            text-align: center;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Navegación lateral simulada */
+        .side { margin-top: 20px; text-align: center; }
+        .side a { color: var(--primary); text-decoration: none; font-weight: bold; display: inline-block; }
+
+        /* =========================================================
+           NUEVAS ANIMACIONES E INTERACTIVIDAD (Las que solicitaste)
+           ========================================================= */
+
+        /* Animación de entrada para los elementos */
+        @keyframes fadeInSlide {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Efecto de rebote al marcar un paso como completado */
+        @keyframes pulseCheck {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.2); background-color: var(--ok); }
+          100% { transform: scale(1); }
+        }
+
+        /* Efecto hover general para botones, pestañas y enlaces */
+        button, .tab, .seg button, .go, .side a {
+          transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        }
+
+        button:hover:not(:disabled), .tab:hover, .seg button:hover, .go:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .side a:hover {
+          transform: translateX(5px);
+        }
+
+        /* Animación de los pasos (steps) */
+        .step {
+          animation: fadeInSlide 0.5s ease-out forwards;
+          transition: all 0.3s ease !important;
+        }
+
+        .step:hover {
+          transform: translateX(8px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          border-left-width: 8px;
+        }
+
+        /* Checkbox animado cuando se completa el paso */
+        .chk {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step.done .chk {
+          animation: pulseCheck 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Interactividad en el rollo SVG del Hero */
+        .rollbox svg {
+          transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .rollbox:hover svg {
+          transform: scale(1.08) rotate(5deg);
+        }
+
+        #wound {
+          /* Transición con efecto elástico para cuando el rollo crece */
+          transition: r 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+
+        /* Transición fluida de la barra de progreso superior */
+        .bar i {
+          transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+
+        /* Efecto al seleccionar imágenes para ampliar */
+        .thumb::after {
+          transition: all 0.3s ease;
+          opacity: 0;
+        }
+        .thumb:hover::after {
+          opacity: 1;
+          padding: 6px 0;
+          font-size: 0.9rem;
+        }
+        .thumb img {
+          transition: transform 0.4s ease;
+        }
+        .thumb:hover img {
+          transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Panel de Configuración</h1>
+        
+        <!-- Barra de progreso fluida -->
+        <div class="bar">
+            <i id="progressBar"></i>
+        </div>
+
+        <!-- Pestañas elevables al hover -->
+        <div class="seg">
+            <button class="tab">Pre-prensa</button>
+            <button class="tab">Calibración Delta E</button>
+            <button class="tab">Flexografía</button>
+        </div>
+
+        <!-- SVG Interactivo de la Bobina -->
+        <div class="rollbox">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="#f0f0f0" stroke="#ccc" stroke-width="2"/>
+                <circle id="wound" cx="50" cy="50" r="25" fill="#2c3e50" />
+                <circle cx="50" cy="50" r="10" fill="#fff" stroke="#ccc" stroke-width="2"/>
+            </svg>
+            <p>Estado de la Bobina</p>
+        </div>
+
+        <!-- Pasos clickeables con efecto rebote -->
+        <!-- Se incluye un pequeño script en el onclick para ver la animación en vivo -->
+        <div class="step done" onclick="this.classList.toggle('done')">
+            <span class="chk"></span>
+            <div>
+                <strong>Paso 1: Ajuste de color digital</strong>
+                <p>Verificar parámetros en el panel de la Xeikon 3300.</p>
+            </div>
+        </div>
+
+        <div class="step done" onclick="this.classList.toggle('done')">
+            <span class="chk"></span>
+            <div>
+                <strong>Paso 2: Montaje físico</strong>
+                <p>Carga y alineación en la Mark Andy 2200.</p>
+            </div>
+        </div>
+
+        <div class="step" onclick="this.classList.toggle('done')">
+            <span class="chk"></span>
+            <div>
+                <strong>Paso 3: Aprobación final</strong>
+                <p>Revisión de registro y densidad de tintas.</p>
+            </div>
+        </div>
+
+        <!-- Galería de muestras con efecto zoom -->
+        <div class="gallery">
+            <div class="thumb">
+                <!-- Imagen de muestra (placeholder) -->
+                <img src="https://via.placeholder.com/150/2c3e50/ffffff?text=CMYK" alt="Prueba de color">
+            </div>
+            <div class="thumb">
+                <img src="https://via.placeholder.com/150/27ae60/ffffff?text=Troquel" alt="Prueba de troquelado">
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 35px;">
+            <button class="go">Finalizar Proceso</button>
+        </div>
+        
+        <div class="side">
+            <a href="#">&larr; Volver al inicio</a>
+        </div>
+    </div>
+
+</body>
+</html>
